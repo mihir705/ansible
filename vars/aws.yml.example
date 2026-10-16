@@ -1,0 +1,36 @@
+---
+# Copy to vars/aws.yml. Omit any map you do not want Ansible to manage.
+gcp_project_id: unused
+aws_region: us-east-1
+
+vpcs:
+  app:
+    name: ansible-app-vpc
+    cidr_block: 10.20.0.0/16
+
+security_groups:
+  web:
+    name: ansible-web-sg
+    vpc_key: app
+    rules:
+      - proto: tcp
+        from_port: 80
+        to_port: 80
+        cidr_ip: 0.0.0.0/0
+
+buckets:
+  app-data:
+    name: my-company-app-data-ansible
+    versioning: true
+
+ec2_instances:
+  web1:
+    name: ansible-web1
+    instance_type: t3.micro
+    image_id: ami-0c02fb55956c7d316
+    vpc_key: app
+    subnet_index: 0
+    security_group_key: web
+    tags:
+      Role: web
+      Environment: prod

@@ -1,0 +1,27 @@
+---
+- name: Disable SSH password authentication
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?PasswordAuthentication"
+    line: "PasswordAuthentication {{ 'yes' if harden_ssh_password_auth else 'no' }}"
+  notify: Restart sshd
+  become: true
+  when: ansible_connection != 'local'
+
+- name: Disable SSH root login
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?PermitRootLogin"
+    line: "PermitRootLogin {{ harden_permit_root_login }}"
+  notify: Restart sshd
+  become: true
+  when: ansible_connection != 'local'
+
+- name: Uptime check (safe everywhere)
+  ansible.builtin.command: uptime
+  register: harden_uptime
+  changed_when: false
+
+- name: Show host uptime
+  ansible.builtin.debug:
+    var: harden_uptime.stdout

@@ -1,0 +1,12 @@
+---
+- name: Collect and display facts
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Show useful facts
+      ansible.builtin.debug:
+        msg:
+          host: "{{ inventory_hostname }}"
+          os: "{{ ansible_facts['distribution'] | default('n/a') }} {{ ansible_facts['distribution_version'] | default('') }}"
+          python: "{{ ansible_facts['python_version'] | default('n/a') }}"
+          groups: "{{ group_names }}"

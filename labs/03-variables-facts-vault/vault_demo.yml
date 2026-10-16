@@ -1,0 +1,10 @@
+---
+- name: Vault secrets demo
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - "{{ playbook_dir }}/../../vault/secrets.yml"
+  tasks:
+    - name: Prove secret length without printing the value
+      ansible.builtin.debug:
+        msg: "db_password length is {{ db_password | length }}"

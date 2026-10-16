@@ -1,0 +1,24 @@
+---
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ ntp_timezone }}"
+  when: ansible_connection != 'local'
+
+- name: Install baseline packages
+  ansible.builtin.package:
+    name: "{{ common_packages }}"
+    state: present
+  when: ansible_connection != 'local'
+  become: true
+
+- name: Deploy motd
+  ansible.builtin.template:
+    src: motd.j2
+    dest: /etc/motd
+    mode: "0644"
+  when: ansible_connection != 'local'
+  become: true
+
+- name: Show baseline facts (safe on localhost)
+  ansible.builtin.debug:
+    msg: "{{ inventory_hostname }} os={{ ansible_facts['distribution'] | default('unknown') }}"

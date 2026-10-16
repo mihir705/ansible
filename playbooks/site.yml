@@ -1,0 +1,22 @@
+---
+# Environment entrypoint — same idea as terraform-aws environments/prod/main.tf
+# Run one layer at a time with tags or a smaller playbook.
+- name: Import ping
+  ansible.builtin.import_playbook: ping.yml
+  tags: [ping]
+
+- name: Import web
+  ansible.builtin.import_playbook: web.yml
+  tags: [web]
+
+- name: Import database
+  ansible.builtin.import_playbook: db.yml
+  tags: [db]
+
+- name: Import docker
+  ansible.builtin.import_playbook: docker.yml
+  tags: [docker]
+
+- name: Import harden
+  ansible.builtin.import_playbook: harden.yml
+  tags: [harden]

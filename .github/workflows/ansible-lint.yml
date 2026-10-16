@@ -1,0 +1,25 @@
+---
+name: ansible-lint
+on:
+  push:
+  pull_request:
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Ansible and ansible-lint
+        run: pip install 'ansible-core>=2.16' ansible-lint
+      - name: Syntax check lab playbooks
+        run: |
+          ansible-playbook --syntax-check playbooks/ping.yml
+          ansible-playbook --syntax-check playbooks/facts.yml
+          ansible-playbook --syntax-check labs/02-playbooks-and-modules/hello.yml
+          ansible-playbook --syntax-check labs/04-conditionals-loops-handlers/demo.yml
+          ansible-playbook --syntax-check labs/05-templates-and-jinja2/demo.yml
+          ansible-playbook --syntax-check labs/07-blocks-tags-error-handling/demo.yml
+      - name: Lint
+        run: ansible-lint

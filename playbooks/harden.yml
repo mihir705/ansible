@@ -1,0 +1,8 @@
+---
+- name: Apply baseline hardening
+  hosts: all:!control
+  become: true
+  roles:
+    - role: harden
+  tags:
+    - harden

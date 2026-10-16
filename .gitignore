@@ -1,0 +1,30 @@
+# Ansible
+*.retry
+*.pyc
+__pycache__/
+.venv/
+venv/
+collections/
+.cache/
+.ansible/
+*.log
+
+# Vault (never commit real secrets)
+vault/secrets.yml
+**/vault.yml
+!**/vault.yml.example
+!**/secrets.yml.example
+
+# Inventory overrides
+inventories/**/*.ini
+!inventories/**/hosts.yml
+
+# Extra vars with real values
+vars/*.yml
+!vars/*.yml.example
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

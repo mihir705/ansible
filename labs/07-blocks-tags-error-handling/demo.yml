@@ -1,0 +1,32 @@
+---
+- name: Error handling demo
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Safe path
+      ansible.builtin.debug:
+        msg: tagged safe
+      tags: [safe]
+
+    - name: Recover from a failure
+      block:
+        - name: Force a failure
+          ansible.builtin.fail:
+            msg: simulated outage
+          tags: [rescue-demo]
+      rescue:
+        - name: Handle the failure
+          ansible.builtin.debug:
+            msg: rescue ran — play continues
+      always:
+        - name: Always log
+          ansible.builtin.debug:
+            msg: always block ran
+      tags: [rescue-demo]
+
+    - name: Command that is not a change
+      ansible.builtin.command: echo health-ok
+      register: health
+      changed_when: false
+      failed_when: "'health-ok' not in health.stdout"
+      tags: [safe]

@@ -1,0 +1,63 @@
+---
+# Optional AWS resources — omit unused maps in vars/aws.yml (same pattern as terraform.tfvars).
+- name: Manage AWS resources with Ansible
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - "{{ playbook_dir }}/../../vars/aws.yml"
+  tasks:
+    - name: Create VPC
+      amazon.aws.ec2_vpc_net:
+        name: "{{ item.value.name }}"
+        cidr_block: "{{ item.value.cidr_block }}"
+        region: "{{ aws_region }}"
+        state: present
+        tags:
+          ManagedBy: ansible
+          Project: ansible
+      loop: "{{ vpcs | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      register: aws_vpcs
+      when: vpcs is defined
+
+    - name: Create S3 buckets
+      amazon.aws.s3_bucket:
+        name: "{{ item.value.name }}"
+        region: "{{ aws_region }}"
+        versioning: "{{ item.value.versioning | default(false) }}"
+        state: present
+        tags:
+          ManagedBy: ansible
+      loop: "{{ buckets | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: buckets is defined
+
+    - name: Create security groups
+      amazon.aws.ec2_security_group:
+        name: "{{ item.value.name }}"
+        description: "Managed by Ansible ({{ item.key }})"
+        region: "{{ aws_region }}"
+        vpc_id: "{{ aws_vpcs.results | selectattr('item.key', 'equalto', item.value.vpc_key) | map(attribute='vpc.id') | first | default(omit) }}"
+        rules: "{{ item.value.rules | default([]) }}"
+        state: present
+      loop: "{{ security_groups | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: security_groups is defined
+
+    - name: Launch EC2 instances
+      amazon.aws.ec2_instance:
+        name: "{{ item.value.name }}"
+        instance_type: "{{ item.value.instance_type }}"
+        image_id: "{{ item.value.image_id }}"
+        region: "{{ aws_region }}"
+        wait: true
+        tags: "{{ item.value.tags | default({}) | combine({'ManagedBy': 'ansible'}) }}"
+        state: present
+      loop: "{{ ec2_instances | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: ec2_instances is defined

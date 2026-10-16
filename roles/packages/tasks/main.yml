@@ -1,0 +1,9 @@
+---
+- name: Install role-specific packages
+  ansible.builtin.package:
+    name: "{{ role_packages }}"
+    state: present
+  when:
+    - role_packages | length > 0
+    - ansible_connection != 'local'
+  become: true

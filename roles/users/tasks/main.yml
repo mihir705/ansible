@@ -1,0 +1,19 @@
+---
+- name: Ensure requested users exist
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    groups: "{{ item.groups | default(omit) }}"
+    append: true
+    shell: "{{ item.shell | default('/bin/bash') }}"
+    state: "{{ item.state | default('present') }}"
+    create_home: true
+  loop: "{{ desired_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: ansible_connection != 'local'
+  become: true
+
+- name: Skip user creation on local lab hosts
+  ansible.builtin.debug:
+    msg: "Skipping user role on {{ inventory_hostname }} (local connection)"
+  when: ansible_connection == 'local'

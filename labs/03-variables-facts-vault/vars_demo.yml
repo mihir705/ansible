@@ -1,0 +1,15 @@
+---
+- name: Variable precedence demo
+  hosts: web
+  gather_facts: false
+  vars:
+    play_var: from-play
+  tasks:
+    - name: Show layered variables
+      ansible.builtin.debug:
+        msg:
+          inventory_hostname: "{{ inventory_hostname }}"
+          group_names: "{{ group_names }}"
+          nginx_listen_port: "{{ nginx_listen_port }}"
+          play_var: "{{ play_var }}"
+          environment_name: "{{ environment_name }}"

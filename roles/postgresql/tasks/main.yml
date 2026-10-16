@@ -1,0 +1,42 @@
+---
+- name: Install PostgreSQL
+  ansible.builtin.package:
+    name:
+      - postgresql
+      - python3-psycopg2
+    state: present
+  become: true
+  when: ansible_connection != 'local'
+
+- name: Start PostgreSQL
+  ansible.builtin.service:
+    name: postgresql
+    state: started
+    enabled: true
+  become: true
+  when: ansible_connection != 'local'
+
+- name: Create application database
+  community.postgresql.postgresql_db:
+    name: "{{ postgresql_db }}"
+    state: present
+  become: true
+  become_user: postgres
+  when: ansible_connection != 'local'
+
+- name: Create application database user
+  community.postgresql.postgresql_user:
+    name: "{{ postgresql_user }}"
+    password: "{{ db_password | default(omit) }}"
+    db: "{{ postgresql_db }}"
+    priv: ALL
+    state: present
+  become: true
+  become_user: postgres
+  no_log: true
+  when: ansible_connection != 'local'
+
+- name: Show intended database (localhost)
+  ansible.builtin.debug:
+    msg: "Would ensure database {{ postgresql_db }} and user {{ postgresql_user }}"
+  when: ansible_connection == 'local'

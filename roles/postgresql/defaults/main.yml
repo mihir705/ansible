@@ -1,0 +1,4 @@
+---
+postgresql_db: app
+postgresql_user: app
+postgresql_listen_addresses: localhost

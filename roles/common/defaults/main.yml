@@ -1,0 +1,6 @@
+---
+ntp_timezone: UTC
+common_packages:
+  - curl
+  - vim
+motd_message: "Managed by Ansible — {{ inventory_hostname }}"

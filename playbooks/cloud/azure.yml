@@ -1,0 +1,39 @@
+---
+- name: Manage Azure resources with Ansible
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - "{{ playbook_dir }}/../../vars/azure.yml"
+  tasks:
+    - name: Create resource groups
+      azure.azcollection.azure_rm_resourcegroup:
+        name: "{{ item.value.name }}"
+        location: "{{ item.value.location | default(azure_location) }}"
+        state: present
+      loop: "{{ resource_groups | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: resource_groups is defined
+
+    - name: Create storage accounts
+      azure.azcollection.azure_rm_storageaccount:
+        resource_group: "{{ item.value.resource_group }}"
+        name: "{{ item.value.name }}"
+        type: Standard_LRS
+        state: present
+      loop: "{{ storage_accounts | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: storage_accounts is defined
+
+    - name: Create virtual networks
+      azure.azcollection.azure_rm_virtualnetwork:
+        resource_group: "{{ resource_group_name }}"
+        name: "{{ item.value.name }}"
+        address_prefixes: "{{ item.value.address_prefixes }}"
+        state: present
+      loop: "{{ virtual_networks | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: virtual_networks is defined
