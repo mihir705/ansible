@@ -1,0 +1,20 @@
+---
+org_name: my-company
+environment_name: lab
+ntp_timezone: UTC
+common_packages:
+  - curl
+  - vim
+  - htop
+  - unzip
+desired_users:
+  - name: deploy
+    groups: ["sudo"]
+    state: present
+nginx_listen_port: 80
+nginx_server_name: localhost
+postgresql_db: app
+postgresql_user: app
+docker_packages:
+  - docker.io
+  - docker-compose-v2

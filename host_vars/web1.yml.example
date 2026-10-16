@@ -1,0 +1,3 @@
+---
+# Copy to host_vars/web1.yml for host-specific overrides.
+nginx_server_name: web1.example.com

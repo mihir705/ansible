@@ -1,0 +1,27 @@
+---
+- name: First playbook
+  hosts: localhost
+  gather_facts: true
+  tasks:
+    - name: Create a lab directory
+      ansible.builtin.file:
+        path: /tmp/ansible-lab
+        state: directory
+        mode: "0755"
+
+    - name: Write a marker file
+      ansible.builtin.copy:
+        dest: /tmp/ansible-lab/hello.txt
+        content: |
+          Hello from {{ inventory_hostname }}
+          Python {{ ansible_facts.python.version.major }}.{{ ansible_facts.python.version.minor }}
+        mode: "0644"
+
+    - name: Read the marker back
+      ansible.builtin.slurp:
+        src: /tmp/ansible-lab/hello.txt
+      register: hello_file
+
+    - name: Show file contents
+      ansible.builtin.debug:
+        msg: "{{ hello_file.content | b64decode }}"

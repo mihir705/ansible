@@ -1,0 +1,3 @@
+---
+harden_ssh_password_auth: false
+harden_permit_root_login: "no"

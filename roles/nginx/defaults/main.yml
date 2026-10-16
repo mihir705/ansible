@@ -1,0 +1,5 @@
+---
+nginx_listen_port: 80
+nginx_server_name: localhost
+nginx_root: /var/www/html
+nginx_index_content: "hello from {{ inventory_hostname }}"

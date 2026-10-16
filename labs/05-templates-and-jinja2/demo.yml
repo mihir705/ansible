@@ -1,0 +1,16 @@
+---
+- name: Jinja2 template demo
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Ensure lab dir
+      ansible.builtin.file:
+        path: /tmp/ansible-lab
+        state: directory
+        mode: "0755"
+
+    - name: Render application config
+      ansible.builtin.template:
+        src: app.conf.j2
+        dest: /tmp/ansible-lab/app.conf
+        mode: "0644"

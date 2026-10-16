@@ -1,0 +1,17 @@
+---
+# Rolling update pattern — serial batches, like a blue/green-lite job interview topic.
+- name: Rolling restart of web
+  hosts: web
+  serial: 1
+  max_fail_percentage: 0
+  gather_facts: false
+  tasks:
+    - name: Pretend health check
+      ansible.builtin.command: echo ok
+      register: health
+      changed_when: false
+      failed_when: health.rc != 0
+
+    - name: Show batch host
+      ansible.builtin.debug:
+        msg: "Updating {{ inventory_hostname }} in a serial batch"

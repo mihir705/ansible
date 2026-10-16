@@ -1,0 +1,22 @@
+---
+azure_location: eastus
+resource_group_name: rg-ansible-prod
+
+resource_groups:
+  app:
+    name: rg-ansible-prod
+    location: eastus
+
+storage_accounts:
+  appdata:
+    name: stansibleappdata
+    resource_group: rg-ansible-prod
+
+virtual_networks:
+  app:
+    name: vnet-ansible-prod
+    address_prefixes:
+      - 10.30.0.0/16
+    subnets:
+      - name: snet-web
+        prefix: 10.30.1.0/24

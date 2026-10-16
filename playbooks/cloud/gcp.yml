@@ -1,0 +1,47 @@
+---
+- name: Manage GCP resources with Ansible
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - "{{ playbook_dir }}/../../vars/gcp.yml"
+  tasks:
+    - name: Create GCS buckets
+      google.cloud.gcp_storage_bucket:
+        name: "{{ item.value.name }}"
+        location: "{{ item.value.location | default(gcp_region) }}"
+        project: "{{ gcp_project_id }}"
+        auth_kind: application
+        state: present
+      loop: "{{ cloud_storage_buckets | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: cloud_storage_buckets is defined
+
+    - name: Create VPC networks
+      google.cloud.gcp_compute_network:
+        name: "{{ item.value.name }}"
+        auto_create_subnetworks: "{{ item.value.auto_create_subnetworks | default(false) }}"
+        project: "{{ gcp_project_id }}"
+        auth_kind: application
+        state: present
+      loop: "{{ vpcs | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      register: gcp_vpcs
+      when: vpcs is defined
+
+    - name: Create subnets
+      google.cloud.gcp_compute_subnetwork:
+        name: "{{ item.value.name }}-subnet"
+        ip_cidr_range: "{{ item.value.subnet_cidr }}"
+        region: "{{ gcp_region }}"
+        network:
+          selfLink: "{{ gcp_vpcs.results | selectattr('item.key', 'equalto', item.key) | map(attribute='selfLink') | first | default(omit) }}"
+        project: "{{ gcp_project_id }}"
+        auth_kind: application
+        state: present
+      loop: "{{ vpcs | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: vpcs is defined

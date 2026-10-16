@@ -1,0 +1,36 @@
+---
+- name: Loops, conditionals, handlers
+  hosts: localhost
+  gather_facts: true
+  handlers:
+    - name: Announce handler
+      ansible.builtin.debug:
+        msg: Handler ran once even if notified many times
+  tasks:
+    - name: Create several files
+      ansible.builtin.copy:
+        dest: "/tmp/ansible-lab/file-{{ item }}.txt"
+        content: "{{ item }}\n"
+        mode: "0644"
+      loop:
+        - alpha
+        - beta
+        - gamma
+      loop_control:
+        label: "{{ item }}"
+      notify: Announce handler
+
+    - name: Skip on macOS example
+      ansible.builtin.debug:
+        msg: This host family is {{ ansible_facts['os_family'] }}
+      when: ansible_facts['os_family'] == 'Darwin'
+
+    - name: Run only when a file exists
+      ansible.builtin.stat:
+        path: /tmp/ansible-lab/file-alpha.txt
+      register: alpha_stat
+
+    - name: Confirm alpha file
+      ansible.builtin.debug:
+        msg: alpha exists
+      when: alpha_stat.stat.exists
